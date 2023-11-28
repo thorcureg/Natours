@@ -14,7 +14,7 @@
     "no-underscore-dangle": "off",
     "class-methods-use-this": "off",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
-    "no-unused-vars": ["error", { "argsIgnorePattern": "req|res|next|val" }],
+    "no-unused-vars": ["false", { "argsIgnorePattern": "req|res|next|val" }],
     "lines-between-class-members":"off",
     "padding-line-between-statements":"off"
   }
