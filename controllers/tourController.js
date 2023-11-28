@@ -3,11 +3,37 @@ const tours = JSON.parse(
     fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+
+//MIDDLE WARE
+//CHECK PARAMETER 'ID'
+exports.checkID = (req,res,next,val)=>{
+    console.log(`Tour ID is: ${val}`);
+    if(req.params.id * 1 >tours.length){
+        console.log(`ID: ${val} is invalid`);
+        return res.status(404).json({
+        status:'fail',
+        message: 'Invalid ID'
+    })
+}
+    next();
+};
+//CHECK BODY 'NAME & PRICE'
+exports.checkBody = (req,res,next)=>{
+    // console.log(req.body.name)
+    if(!req.body.name || !req.body.price){
+        return res.status(404).json({
+        status:'fail',
+        message: 'Missing name or price'
+    })
+}
+    next();
+};
+
+
 // HANDLERS
 //GET ALL TOURS
 exports.getAllTours = (req,res)=>{
     console.log(req.requestTime);
-
     res
     .status(200) //status code
     .json({
@@ -69,11 +95,6 @@ exports.createTour =(req,res)=>{
 // UPDATE TOUR 
 exports.updateTour = (req,res)=>{
 
-    if(req.params.id * 1 >tours.length)
-        {return res.status(404).json({
-            status:'fail',
-            message: 'failed to find id'
-        })}
      res
         .status(200)
         .json({
@@ -86,12 +107,6 @@ exports.updateTour = (req,res)=>{
 }
 // DELETE TOUR 
 exports.deleteTour = (req,res)=>{
-
-    if(req.params.id * 1 >tours.length)
-        {return res.status(404).json({
-            status:'fail',
-            message: 'failed to find id'
-        })}
      res
         .status(204)
         .json({
