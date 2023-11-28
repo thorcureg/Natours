@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-const app = require('./app');
-
-const port = 3000; 
-app
-.listen(port, () =>{
-    console.log(`App is running on port ${port}...`)
-});
-=======
 const mongoose = require('mongoose')
 const dotenv = require('dotenv');
 const app = require('./app');
@@ -58,4 +49,3 @@ app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
  
->>>>>>> 21a3c76 (Section 8-Createing a Simple Tour Model)
