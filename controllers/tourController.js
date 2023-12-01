@@ -1,37 +1,27 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 //MIDDLE WARE
 // HANDLERS
+exports.aliasTopTours = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = 'ratingAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+};
+
 //GET ALL TOURS
 exports.getAllTours = async (req, res) => {
     try {
         // BUILDING QUERY
-        // 1A. FILTERING
-        const queryObj = { ...req.query };
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
-        excludedFields.forEach((el) => delete queryObj[el]);
-
-        // 1B. ADVANCE FILTERING
-        let queryStr = JSON.stringify(queryObj);
-        queryStr = queryStr.replace(
-            /\b(gte|gt|lte|lt)\b/g,
-            (match) => `$${match}`,
-        );
-        console.log(JSON.parse(queryStr));
-
-        let query = Tour.find(JSON.parse(queryStr));
-
-        // 2. SORTING
-        if (req.query.sort) {
-            const sortBy = req.query.sort.split(',').join(' ');
-            console.log(sortBy);
-            query = query.sort(sortBy);
-        } else {
-            query = query.sort('-createdAt');
-        }
         //EXECUTE QUERY
-        const tours = await query;
+        const features = new APIFeatures(Tour.find(), req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const tours = await features.query;
 
-        //SEND QUERY
+        //SEND RESPONSE
         res.status(200) //status code
             .json({
                 status: `sucess`,
@@ -41,6 +31,7 @@ exports.getAllTours = async (req, res) => {
                 },
             });
     } catch (err) {
+        console.log(err);
         res.status(400).json({
             status: 'fail',
             message: err,
@@ -119,3 +110,13 @@ exports.deleteTour = async (req, res) => {
         });
     }
 };
+//
+exports.getTourStats = asynch (req,res)=>{
+    try{
+        const stats = Tour.aggregate([
+            
+        ])
+    }catch(err){
+
+    }
+}
