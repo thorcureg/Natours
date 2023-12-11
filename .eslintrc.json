@@ -6,7 +6,7 @@
       "error",
       {
         "endOfLine": "auto",
-        "tabWidth": false
+        "tabWidth": 4
       }
     ],
     "spaced-comment": "off",
