@@ -15,7 +15,8 @@ exports.signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        passwordChangedAt: new Date(req.body.passwordChangedAt),
+        passwordChangedAt: req.body.passwordChangedAt,
+        role: req.body.role,
     });
     const token = signToken(newUser._id);
 
@@ -70,8 +71,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
     // 3) Check if user still exist
-    const freshUser = await User.findById(decoded.id);
-    if (!freshUser) {
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
         return next(
             new AppError(
                 'The user belonging to this token no longer exist',
@@ -80,8 +81,38 @@ exports.protect = catchAsync(async (req, res, next) => {
         );
     }
     // 4) Check if user changed passwords after the JWT/Token was issued
-    if (freshUser.changedPasswordAfter(decoded.iat)){
-        return next(new AppError('User recently changed'))
-    };
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next(
+            new AppError(
+                'User recently changed password. Please log in again.',
+                401,
+            ),
+        );
+    }
+
+    //GRANT ACCESS TO PROTECTED ROUTE
+    req.user = currentUser;
     next();
 });
+
+exports.restrictTo =
+    (...roles) =>
+    (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new AppError('You dont have permission', 401));
+        }
+        console.log(req.user.role);
+        next();
+    };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+    // 1) Get User based on POSTed email
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+        return next(new AppError('There is no user with email address.', 404));
+    } // 2) Generate the random reset token
+    // 3) Send it to user's email
+});
+// exports.resetPassword = (req, res, next)=>{
+
+// }

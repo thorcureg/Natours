@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-// const slugify = require('slugify');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 // Schema
@@ -8,7 +7,7 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'A User must have a name'],
-        // validate: [validator.isAlpha, 'user name must only contain characters']
+        validate: [validator.isAlpha, 'user name must only contain characters'],
     },
     email: {
         type: String,
@@ -18,6 +17,11 @@ const userSchema = new mongoose.Schema({
         unique: true,
     },
     photo: [String],
+    role: {
+        type: String,
+        enum: ['user', 'guide', 'lead-guide', 'admin'],
+        default: 'user',
+    },
     password: {
         type: String,
         required: [true, 'A User must have a Password'],
