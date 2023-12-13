@@ -183,50 +183,32 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 //UPDATE PASSWORD
 exports.updatePassword = catchAsync(async (req, res, next) => {
-    // 1) Get user from the collection
-    console.log(req.body);
-    const user = await User.findById(req.user._id).select('+password');
+    // 1) Get user from collection
+    const user = await User.findById(req.user.id).select('password');
 
-    // Log for debugging
-    // console.log('User:', user);
-    // console.log('req.user._id:', req.user._id);
-    // console.log('req.body.passwordCurrent:', req.body.passwordCurrent);
-    // console.log('req.body.password:', req.body.password);
-    // console.log('req.body.passwordConfirm:', req.body.passwordConfirm);
-
-    // 2) Check if posted password is correct
+    // 2) Check if POSTed current password is correct
     if (
-        !user ||
-        !(await user.correctPassword(req.body.passwordConfirm, user.password))
+        !(await user.correctPassword(req.body.passwordCurrent, user.password))
     ) {
-        console.log('Current password is invalid');
-        return next(new AppError('Current password is invalid', 400));
+        return next(new AppError('Your current password is wrong!', 401));
     }
 
-    // 3) Check if new password and confirmation match
-    if (req.body.password !== req.body.passwordConfirm) {
-        console.log('Password and password confirmation do not match');
-        return next(
-            new AppError(
-                'Password and password confirmation do not match',
-                400,
-            ),
-        );
-    }
-
-    // 4) If correct, update password
+    // 3) If so, update password
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
 
-    // Log for debugging
-    console.log('Updated user:', user);
+    // 4) Save the updated user and check if the password was updated
+    const updatedUser = await user.save();
 
-    // 5) Save the updated user
-    await user.save();
+    // Check if the password was updated successfully
+    if (!updatedUser) {
+        return next(new AppError('Error updating password', 500));
+    }
 
-    // 6) Log user in and send JWT
-    createSendToken(user, 200, res);
+    // 5) Log user in, send JWT
+    createSendToken(updatedUser, 200, res);
 });
+
 // exports.updatePassword = catchAsync(async (req, res, next) => {
 //     //1)
 //     const user = await User.findById(req.user.id).select('+password');

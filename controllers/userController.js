@@ -1,33 +1,49 @@
 const User = require('../models/userModel');
 // const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
-// const AppError = require('../utils/appError');
+const AppError = require('../utils/appError');
 // CREATE TOUR
 exports.createUser = catchAsync(async (req, res, next) => {
     const newUser = await User.create(req.body);
-  
+
     res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newUser,
-      },
+        status: 'success',
+        data: {
+            tour: newUser,
+        },
     });
-  });
+});
 
 // GET ALL USER
 exports.getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find();
 
     //SEND RESPONSE
-    res
-      .status(200) //status code
-      .json({
-        status: `sucess`,
-        results: users.length, //number of results
-        data: {
-            users, //data parsed from dev_data
-        },
-      });
+    res.status(200) //status code
+        .json({
+            status: `sucess`,
+            results: users.length, //number of results
+            data: {
+                users, //data parsed from dev_data
+            },
+        });
+});
+// UPDATE ME
+exports.updateMe = catchAsync(async (req, res, next) => {
+    if (req.body.password || req.body.passwordConfirm) {
+        return next(
+            new AppError(
+                'This route is not for password updates. Please use /updatePassword',
+                400,
+            ),
+        );
+    }
+    //2)
+    res.status(200) //status code
+        .json({
+            status: `sucess`,
+        });
+    //3)
 });
 // GET USER
 exports.getUser = (req, res) => {
