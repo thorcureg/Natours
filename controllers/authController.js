@@ -109,14 +109,14 @@ exports.protect = catchAsync(async (req, res, next) => {
     next();
 });
 
-exports.restrictTo =
-    (...roles) =>
+exports.restrictTo =(...roles) =>
     (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!roles.includes(req.user.role) && !roles.includes(req.user.roles)) {
             return next(new AppError('You dont have permission', 401));
-        }
+        }        
         next();
     };
+     
 
 //FORGOT PASSWORD
 exports.forgotPassword = catchAsync(async (req, res, next) => {

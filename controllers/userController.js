@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 // const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('../controllers/handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -81,18 +82,6 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 
 // GET USER
 exports.getUser = (req, res) => {
-    // console.log(req.params);
-
-    // const id = req.params.id * 1;
-    // const tour = tours.find(el => el.id=== id);
-
-    // // if(id>tours.length)
-    // if (!tour)
-    // {return res.status(404).json({
-    //     status:'fail',
-    //     message: 'failed to find id'
-    // })}
-
     res.status(500).json({
         status: 'error',
         message: 'This route is not yet defined',
@@ -100,28 +89,6 @@ exports.getUser = (req, res) => {
 };
 ////////////////////
 // UPDATE USER
-exports.updateUser = (req, res) => {
-    // if(req.params.id * 1 >Users.length)
-    //     {return res.status(404).json({
-    //         status:'fail',
-    //         message: 'failed to find id'
-    //     })}
-    res.status(200).json({
-        status: 'success',
-        data: {
-            User: 'updated data here',
-        },
-    });
-};
+exports.updateUser = factory.updateOne(User)
 // DELETE USER
-exports.deleteUser = (req, res) => {
-    // if(req.params.id * 1 >tours.length)
-    //     {return res.status(404).json({
-    //         status:'fail',
-    //         message: 'failed to find id'
-    //     })}
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined',
-    });
-};
+exports.deleteUser = factory.deleteOne(User)
