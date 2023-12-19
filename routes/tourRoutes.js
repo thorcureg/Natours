@@ -1,40 +1,53 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
-const reviewRouter = require('../routes/reviewRoutes');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
-router.use('/:tourId/reviews', reviewRouter)
 
+// Mount the review router
+router.use('/:tourId/reviews', reviewRouter);
+
+// Top 5 cheap tours route
 router
     .route('/top-5-cheap')
     .get(tourController.aliasTopTours, tourController.getAllTours);
+
+// Tour statistics route
 router.route('/tour-stats').get(tourController.getTourStats);
-router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+
+// Monthly plan route
+router
+    .route('/monthly-plan/:year')
+    .get(
+        authController.protect,
+        authController.restrictTo('admin', 'lead-guide', 'guide'),
+        tourController.getMonthlyPlan,
+    );
+
+// Tour routes (protected by authentication and role-based access)
 router
     .route('/')
-    .get(authController.protect, tourController.getAllTours)
-    .post(tourController.createTour);
+    .get(tourController.getAllTours)
+    .post(
+        authController.protect,
+        authController.restrictTo('admin'),
+        tourController.createTour,
+    );
 
+// Single tour routes (protected by authentication and role-based access)
 router
     .route('/:id')
     .get(tourController.getTour)
-    .patch(tourController.updateTour)
+    .patch(
+        authController.protect,
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.updateTour,
+    )
     .delete(
         authController.protect,
         authController.restrictTo('admin', 'lead-guide'),
         tourController.deleteTour,
     );
-// router
-//     .route('/:tourId/reviews')
-//     .post(
-//     authController.protect,
-//     authController.restrictTo('user'),
-//     reviewController.createReview
-//     );
-
-router
-    .route('/top-5-cheap')
-    .get(tourController.aliasTopTours, tourController.getAllTours);
 
 module.exports = router;

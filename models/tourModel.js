@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const User = require('./userModel');
+// const User = require('./userModel');
 // Schema
 const tourSchema = new mongoose.Schema(
     {
@@ -85,12 +85,12 @@ const tourSchema = new mongoose.Schema(
         secretTour: {
             type: Boolean,
             default: false,
-        }, 
+        },
         startLocation: {
             type: {
                 String,
                 default: 'Point',
-                enum: ['Point']
+                enum: ['Point'],
             },
             coordinates: [Number],
             address: String,
@@ -111,26 +111,32 @@ const tourSchema = new mongoose.Schema(
         ],
         guides: [
             {
-            type: mongoose.Schema.ObjectId,
-            ref: 'User',
-            }
-        ]
+                type: mongoose.Schema.ObjectId,
+                ref: 'User',
+            },
+        ],
     },
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true },
     },
 );
+tourSchema.index({
+    price: 1,
+    ratingsAverage: -1,
+});
+tourSchema.index({
+    slug: 1,
+});
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
 // Virtual Populate
-tourSchema.virtual('reviews',{
+tourSchema.virtual('reviews', {
     ref: 'Review',
     foreignField: 'tour',
     localField: '_id',
 });
-
 
 //DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function (next) {
@@ -147,8 +153,8 @@ tourSchema.pre(/^find/, function (next) {
 tourSchema.pre(/^find/, function (next) {
     this.populate({
         path: 'guides',
-        select:'-__v -passwordChangedAt'
-   }); 
+        select: '-__v -passwordChangedAt',
+    });
     next();
 });
 tourSchema.post(/^find/, function (docs, next) {

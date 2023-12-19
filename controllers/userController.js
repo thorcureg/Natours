@@ -2,7 +2,7 @@ const User = require('../models/userModel');
 // const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const factory = require('../controllers/handlerFactory');
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
@@ -24,19 +24,6 @@ exports.createUser = catchAsync(async (req, res, next) => {
 });
 
 // GET ALL USER
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-    const users = await User.find();
-
-    //SEND RESPONSE
-    res.status(200) //status code
-        .json({
-            status: `sucess`,
-            results: users.length, //number of results
-            data: {
-                users, //data parsed from dev_data
-            },
-        });
-});
 // UPDATE ME
 exports.updateMe = catchAsync(async (req, res, next) => {
     //1) Createa Error if User POSTS password data
@@ -79,16 +66,19 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
         data: null,
     });
 });
-
-// GET USER
-exports.getUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not yet defined',
-    });
+// userController.js
+exports.getMe = (req, res, next) => {
+    // Your logic here
+    req.params.id = req.user.id;
+    next();
 };
+
+//GET ALL USERS
+exports.getAllUsers = factory.getAll(User);
+// GET USER
+exports.getUser = factory.getOne(User);
 ////////////////////
 // UPDATE USER
-exports.updateUser = factory.updateOne(User)
+exports.updateUser = factory.updateOne(User);
 // DELETE USER
-exports.deleteUser = factory.deleteOne(User)
+exports.deleteUser = factory.deleteOne(User);
