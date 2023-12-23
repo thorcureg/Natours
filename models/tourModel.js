@@ -42,6 +42,7 @@ const tourSchema = new mongoose.Schema(
             required: [true, 'A tour must hae a rating'],
             max: [5, 'A tour name must be less or equal to 5'],
             min: [1, 'A tour name must be greater or equal then 1'],
+            set: val => Math.round(val * 10 ) / 10
         },
         ratingsQuantity: {
             type: Number,
@@ -121,6 +122,7 @@ const tourSchema = new mongoose.Schema(
         toObject: { virtuals: true },
     },
 );
+
 tourSchema.index({
     price: 1,
     ratingsAverage: -1,
